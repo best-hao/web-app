@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title>百度地图之自动提示</title>
+    <style type="text/css">
+        .search-adress{width: 100%;height: auto;}
+        .search-adress .content-top{
+            width: 1200px;
+            height: 130px;
+            margin: 0 auto;
+            line-height: 130px;
+        }
+        .search-adress .content{
+            width: 1200px;
+            height: 650px;
+            background: url(search_adress_bg.png);
+            margin: 0 auto;
+            position: relative;
+            color: #666;
+        }
+        .search-adress .content-child{
+            position: absolute;
+            width: 660px;
+            top: 210px;
+            left: 0;
+            right: 0;
+            margin: auto;
+        }
+        .search-adress .content-child.active{
+            top: 100px;
+        }
+        .search-adress .input-box{
+            height: 50px;
+            border: 1px solid rgba(217,217,217,0.9);
+            background: rgba(240,240,240,0.5);
+        }
+        .search-adress .input-box span.city{
+            display: inline-block;
+            width: 65px;
+            height: 100%;
+            position: relative;
+            line-height: 50px;
+            text-align: center;
+        }
+        .search-adress .input-box span.city:after{
+            content: "";
+            height: 30px;
+            width: 2px;
+            background: #666;
+            position: absolute;
+            top: 10px;
+            right: 0;
+        }
+        #searchAdressInput{
+            border: 0;
+            margin: 0;
+            padding: 0;
+            background: none;
+            outline: none;
+            width: 455px;
+            height: 40px;
+            padding: 5px 10px;
+            font-size: 18px;
+            color: #666;
+        }
+        .search-adress .input-box .sureBtn{
+            display: inline-block;
+            border: 0;
+            margin: 0;
+            padding: 0;
+            outline: none;
+            width: 100px;
+            height: 50px;
+            font-size: 18px;
+            background:  #cc0001;
+            color: #fff;
+        }
+        .search-adress .adress-erweima{
+            width: 649px;
+            height: 216px;
+            background: rgba(240,240,240,0.6);
+            background-image: url(adress_erweima.png);
+            margin: 20px auto;
+            border-radius: 10px;
+            visibility: visible;
+        }
+        #mapContainer{
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 80px;
+            width: 649px;
+            height: 400px;
+            margin: auto;
+            /*visibility: hidden;*/
+        }
+        .search-adress .content-child.active .adress-erweima{
+            visibility: hidden;
+        }
+        .search-adress .content-child.active #mapContainer{
+            visibility: visible;
+        }
+       #r-result{z-index: 9999;position: relative;} 
+    </style>
+</head>
+<body>
+    <div class="search-adress">
+        <div class="content-top">
+            <img src="sy_20.png" alt="">
+            <img src="sy_23.png" alt="">
+        </div>
+        <div class="content">
+            <div class="content-child">
+                <div class="input-box">
+                    <span class="city">晋城</span>
+                    <input type="text" id="searchAdressInput" size="50"  placeholder="请输入你的地址" />
+                    <button class="sureBtn">确定</button>
+                </div>
+                <div class="adress-erweima"></div>
+                <div id="mapContainer"></div>
+                <div id="r-result"></div>
+            </div>         
+        </div>
+    </div>
+<script src="http://api.map.baidu.com/api?v=2.0&ak=ZUHewhg0KDCnZa5emK9hxRib"></script>  
+<script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>  
+<script type="text/javascript">
+var city = "晋城市";
+var map = new BMap.Map("mapContainer");
+map.centerAndZoom(city);
+var ac = new BMap.Autocomplete({
+    "input" : "searchAdressInput",
+    "location" : city,
+    "onSearchComplete":function(AutocompleteResult){
+         // ac.hide() 
+        var myKeys;
+        if (AutocompleteResult.keyword) {
+            myKeys=AutocompleteResult.keyword;
+        }else{
+            myKeys="";
+        }
+        console.log(myKeys)   
+        var local = new BMap.LocalSearch(city,{
+            renderOptions:{map: map, panel:"r-result"},
+            pageCapacity:5
+            }); 
+            local.search("晋城市"+myKeys);
+        }
+    });
+//建立一个自动完成的对象
+    // var myKeys;
+   
+ac.addEventListener("onconfirm", function(e) {    //鼠标点击下拉列表后的事件
+    var _value = e.item.value;
+    console.log(e.item.value)
+    myValue = _value.province + _value.city + _value.district +_value.street + _value.business + _value.streetNumber;
+    ac.setInputValue(myValue);
+    // setPlace()
+});
+    
+// function setPlace(){
+//     map.clearOverlays();//清除地图
+//     var myGeo = new BMap.Geocoder();// 将地址解析结果显示在地图上,并调整地图视野
+//     myGeo.getPoint(myValue, function(point){
+//         if (point) {
+//              var lf = lf ? lf : 10 - myValue.length * 6,//百度地图标注字体12px
+//                  top = top ? top : -20;
+//              map.centerAndZoom(point, 16);  
+//              map.addOverlay(new BMap.Marker(point));
+//              new BMap.Marker(point).setLabel(new BMap.Label(myValue, {offset: new BMap.Size(lf, top)}));
+//         }
+//     });
+// }
+
+// $("#searchAdressInput").focus(function(){
+//     $(".content-child").addClass("active");
+// })
+// $(".search-adress .sureBtn").click(function(){
+//     $(".content-child").removeClass("active");
+// })
+</script>
+</body>
+</html>
